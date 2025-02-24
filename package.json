@@ -20,9 +20,11 @@
   "homepage": "https://bagdenius.github.io/forkify/",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.13.3",
+    "gh-pages": "^6.3.0",
     "parcel": "^2.13.3",
-    "svgo": "^3.3.2",
-    "gh-pages": "^6.3.0"
+    "svgo": "^3.3.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "fractional": "^1.0.0"
+  }
 }
