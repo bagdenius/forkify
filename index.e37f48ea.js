@@ -601,13 +601,6 @@ var _modelJs = require("./model.js");
 var _recipeViewJs = require("./views/recipeView.js");
 var _recipeViewJsDefault = parcelHelpers.interopDefault(_recipeViewJs);
 const recipeContainer = document.querySelector('.recipe');
-const timeout = function(s) {
-    return new Promise(function(_, reject) {
-        setTimeout(function() {
-            reject(new Error(`Request took too long! Timeout after ${s} second`));
-        }, s * 1000);
-    });
-};
 // https://forkify-api.herokuapp.com/v2
 ///////////////////////////////////////
 async function controlRecipe() {
@@ -618,41 +611,46 @@ async function controlRecipe() {
         await _modelJs.loadRecipe(id);
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (error) {
-        console.error(error);
-        (0, _recipeViewJsDefault.default).renderError(error);
+        console.error(`${error} \u{1F480}`);
+        (0, _recipeViewJsDefault.default).renderError();
     }
 }
-[
-    `hashchange`,
-    `load`
-].forEach((event)=>window.addEventListener(event, controlRecipe));
+function init() {
+    (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipe);
+}
+init();
 
 },{"./model.js":"Y4A21","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/recipeView.js":"l60JC"}],"Y4A21":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
+var _config = require("./config");
+var _helpers = require("./helpers");
 const state = {
     recipe: {}
 };
 async function loadRecipe(id) {
-    const response = await fetch(`https://forkify-api.herokuapp.com/api/v2/recipes/${id}`);
-    const data = await response.json();
-    if (!response.ok) throw new Error(`${response.status}: ${data.message}`);
-    const { recipe } = data.data;
-    state.recipe = {
-        id: recipe.id,
-        title: recipe.title,
-        publisher: recipe.publisher,
-        sourceUrl: recipe.source_url,
-        image: recipe.image_url,
-        servings: recipe.servings,
-        cookingTime: recipe.cooking_time,
-        ingredients: recipe.ingredients
-    };
+    try {
+        const data = await (0, _helpers.getJSON)(`${(0, _config.API_URL)}/${id}`);
+        const { recipe } = data.data;
+        state.recipe = {
+            id: recipe.id,
+            title: recipe.title,
+            publisher: recipe.publisher,
+            sourceUrl: recipe.source_url,
+            image: recipe.image_url,
+            servings: recipe.servings,
+            cookingTime: recipe.cooking_time,
+            ingredients: recipe.ingredients
+        };
+    } catch (error) {
+        // console.error(`${error} 💀`);
+        throw error;
+    }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports,__globalThis) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./config":"k5Hzs","./helpers":"hGI1E"}],"gkKU3":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -682,7 +680,42 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"l60JC":[function(require,module,exports,__globalThis) {
+},{}],"k5Hzs":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "API_URL", ()=>API_URL);
+parcelHelpers.export(exports, "TIMEOUT_SECONDS", ()=>TIMEOUT_SECONDS);
+const API_URL = `https://forkify-api.herokuapp.com/api/v2/recipes`;
+const TIMEOUT_SECONDS = 15;
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports,__globalThis) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "getJSON", ()=>getJSON);
+var _config = require("./config");
+function timeout(seconds) {
+    return new Promise(function(_, reject) {
+        setTimeout(function() {
+            reject(new Error(`Request took too long! Timeout after ${seconds} seconds`));
+        }, seconds * 1000);
+    });
+}
+async function getJSON(url) {
+    try {
+        const response = await Promise.race([
+            fetch(url),
+            timeout((0, _config.TIMEOUT_SECONDS))
+        ]);
+        const data = await response.json();
+        if (!response.ok) throw new Error(`${response.status}: ${data.message}`);
+        return data;
+    } catch (error) {
+        // console.error(`${error} 💀`);
+        throw error;
+    }
+}
+
+},{"./config":"k5Hzs","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"l60JC":[function(require,module,exports,__globalThis) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");
@@ -691,6 +724,7 @@ var _fractional = require("fractional");
 class RecipeView {
     #parentElement = document.querySelector(`.recipe`);
     #data;
+    #errorMessage = `Could not find the recipe.<br>Please try another one!`;
     render(data) {
         this.#data = data;
         this.#clear();
@@ -709,9 +743,24 @@ class RecipeView {
         this.#clear();
         this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
     }
-    renderError(error) {
-        this.#clear;
-        this.#parentElement.insertAdjacentText(`afterbegin`, error);
+    renderError(message = this.#errorMessage) {
+        const markup = `
+    <div class="error">
+        <div>
+            <svg>
+                <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+            </svg>
+        </div>
+            <p>${message}</p>
+    </div>`;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML(`afterbegin`, markup);
+    }
+    addHandlerRender(handler) {
+        [
+            `hashchange`,
+            `load`
+        ].forEach((event)=>window.addEventListener(event, handler));
     }
     #generateMarkup() {
         return `
