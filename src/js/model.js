@@ -20,7 +20,7 @@ export async function loadRecipe(id) {
       ingredients: recipe.ingredients,
     };
   } catch (error) {
-    console.error(`${error} 💀`);
+    // console.error(`${error} 💀`);
     throw error;
   }
 }
