@@ -5,9 +5,8 @@ function timeout(seconds) {
     setTimeout(function () {
       reject(
         new Error(`Request took too long! Timeout after ${seconds} seconds`)
-      ),
-        seconds * 1000;
-    });
+      );
+    }, seconds * 1000);
   });
 }
 
