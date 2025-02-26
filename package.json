@@ -4,7 +4,7 @@
   "description": "Recipe application",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html --public-url /forkify",
+    "build": "parcel build index.html --public-url /forkify --no-scope-hoist",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
@@ -22,7 +22,7 @@
     "@parcel/transformer-sass": "^2.13.3",
     "gh-pages": "^6.3.0",
     "parcel": "^2.13.3",
-    "svgo": "^3.3.2"
+    "sass": "^1.85.0"
   },
   "dependencies": {
     "fractional": "^1.0.0"
