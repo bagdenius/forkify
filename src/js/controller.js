@@ -11,6 +11,7 @@ async function controlRecipe() {
     const id = window.location.hash.slice(1);
     if (!id) return;
     recipeView.renderSpinner();
+    resultsView.update(model.getSearchResultsPage());
     await model.loadRecipe(id);
     recipeView.render(model.state.recipe);
   } catch (error) {
@@ -25,7 +26,7 @@ async function controlSearchResults() {
     if (!query) return;
     resultsView.renderSpinner();
     await model.loadSearchResults(query);
-    resultsView.render(model.getSearchResultsPage());
+    resultsView.render(model.getSearchResultsPage(1));
     paginationView.render(model.state.search);
   } catch (error) {
     console.error(`${error} 💀`);
@@ -38,8 +39,14 @@ function controlPagination(goToPage) {
   paginationView.render(model.state.search);
 }
 
+function controlServings(newServings) {
+  model.updateServings(newServings);
+  recipeView.update(model.state.recipe);
+}
+
 function init() {
   recipeView.addHandlerRender(controlRecipe);
+  recipeView.addHandlerUpdateServings(controlServings);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 }
