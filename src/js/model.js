@@ -30,7 +30,7 @@ export async function loadRecipe(id) {
       state.recipe.bookmarked = true;
     else state.recipe.bookmarked = false;
   } catch (error) {
-    // console.error(`${error} 💀`);
+    // console.error(error);
     throw error;
   }
 }
@@ -49,7 +49,7 @@ export async function loadSearchResults(query) {
     });
     state.search.page = 1;
   } catch (error) {
-    // console.error(`${error} 💀`);
+    // console.error(error);
     throw error;
   }
 }
@@ -71,10 +71,26 @@ export function updateServings(newServings) {
 export function addBookmark(recipe) {
   state.bookmarks.push(recipe);
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  persistBookmarks();
 }
 
 export function removeBookmark(id) {
   const index = state.bookmarks.findIndex(bookmark => bookmark.id === id);
   state.bookmarks.splice(index, 1);
   if (id === state.recipe.id) state.recipe.bookmarked = false;
+  persistBookmarks();
 }
+
+function persistBookmarks() {
+  localStorage.setItem(`bookmarks`, JSON.stringify(state.bookmarks));
+}
+
+export function loadBookmarksFromLocalStorage() {
+  const storage = localStorage.getItem(`bookmarks`);
+  if (storage) state.bookmarks = JSON.parse(storage);
+}
+
+function clearBookmarks() {
+  localStorage.clear(`bookmarks`);
+}
+// clearBookmarks();

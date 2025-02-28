@@ -17,7 +17,7 @@ async function controlRecipe() {
     await model.loadRecipe(id);
     recipeView.render(model.state.recipe);
   } catch (error) {
-    console.error(`${error} 💀`);
+    console.error(error);
     recipeView.renderError();
   }
 }
@@ -31,7 +31,7 @@ async function controlSearchResults() {
     resultsView.render(model.getSearchResultsPage());
     paginationView.render(model.state.search);
   } catch (error) {
-    console.error(`${error} 💀`);
+    console.error(error);
     resultsView.renderError();
   }
 }
@@ -53,7 +53,13 @@ function controlAddBookmark() {
   bookmarksView.render(model.state.bookmarks);
 }
 
+function controlBookmarks() {
+  bookmarksView.render(model.state.bookmarks);
+}
+
 function init() {
+  model.loadBookmarksFromLocalStorage();
+  bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipe);
   recipeView.addHandlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
