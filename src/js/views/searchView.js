@@ -1,9 +1,8 @@
 import View from './view.js';
-import icons from 'url:../../img/icons.svg';
 
 class SearchView extends View {
   _parentElement = document.querySelector(`.search`);
-  _errorMessage = `Could not find the recipe.<br>Please try another one!`;
+  _errorMessage = `Could not find the recipe.<br>Please try another one 😉`;
   _message = ``;
 
   getQuery() {
