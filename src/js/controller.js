@@ -1,9 +1,11 @@
 import * as model from './model.js';
+import { MODAL_CLOSE_TIME_SECONDS } from './config.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
 import paginationView from './views/paginationView.js';
 import bookmarksView from './views/bookmarksView.js';
+import addRecipeView from './views/addRecipeView.js';
 
 // if (module.hot) module.hot.accept();
 
@@ -57,6 +59,23 @@ function controlBookmarks() {
   bookmarksView.render(model.state.bookmarks);
 }
 
+async function controlAddRecipe(newRecipe) {
+  try {
+    addRecipeView.renderSpinner();
+    await model.uploadRecipe(newRecipe);
+    recipeView.render(model.state.recipe);
+    addRecipeView.renderMessage();
+    setTimeout(() => {
+      addRecipeView.toggleWindow();
+    }, MODAL_CLOSE_TIME_SECONDS * 1000);
+    bookmarksView.render(model.state.bookmarks);
+    window.history.pushState(null, ``, `${model.state.recipe.id}`);
+  } catch (error) {
+    console.error(error);
+    addRecipeView.renderError(error.message);
+  }
+}
+
 function init() {
   model.loadBookmarksFromLocalStorage();
   bookmarksView.addHandlerRender(controlBookmarks);
@@ -65,5 +84,6 @@ function init() {
   recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
+  addRecipeView.addHandlerUpload(controlAddRecipe);
 }
 init();
