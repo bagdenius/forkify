@@ -87,3 +87,16 @@ function init() {
   addRecipeView.addHandlerUpload(controlAddRecipe);
 }
 init();
+
+// TODO: replace Parcel build and deploy with WebPack or Vercel
+// TODO: replace fractional library (e.g. fracty)
+// TODO: re-render adding recipe form after adding recipe or error displaying
+
+// TODO: display number of pages between the pagination buttons
+// TODO: add ability to sort search results by duration or number of ingridients
+// TODO: perform ingridient validation in view, before submitting theform
+// TODO: improve recipe ingridient input: separate in multiple field and allow more than 6 ingridients (better by adding more ingridients fields by pressing a button)
+
+// TODO: shopping list feature: button on recipe to add ingridients to a list
+// TODO: weakly meal planning feature: assing recipes to the next 7days and showon a weekly calendar
+// TODO: get nutrition data on each ingridient from special API (e.g. spoonacular API: https://spoonacular.com/food-api) and calculate total calories of recipe (and per serving).

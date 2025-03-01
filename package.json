@@ -2,6 +2,11 @@
   "name": "forkify",
   "version": "1.0.0",
   "description": "Recipe application",
+  "targets": {
+    "default": {
+      "optimize": false
+    }
+  },
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html --public-url /forkify --no-scope-hoist",
